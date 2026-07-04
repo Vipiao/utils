@@ -1,31 +1,36 @@
 // CameraProjection.cpp
 #include "CameraProjection.h"
+#include "PaniniProjection.h"
 #include <cmath>
 
-glm::dvec2 CameraProjection::worldToScreen(const glm::dvec3& worldPos, 
+glm::dvec2 CameraProjection::worldToScreen(const glm::dvec3& worldPos,
                                           const glm::dvec3& cameraPos,
-                                          const glm::dquat& cameraOri, 
-                                          double fov, 
-                                          double aspectRatio) {
+                                          const glm::dquat& cameraOri,
+                                          double fov,
+                                          double aspectRatio,
+                                          double paniniHorizontal,
+                                          double paniniVertical,
+                                          double paniniFitScale) {
     // Transform to camera space
     glm::dvec3 cameraSpace = worldToCamera(worldPos, cameraPos, cameraOri);
-    
+
     // Check if point is behind camera
     if (isBehindCamera(cameraSpace)) {
         // Point is behind camera, mark as non-selectable
         return glm::dvec2(-2.0, -2.0);
     }
-    
-    // Perspective projection
-    double projectedX = cameraSpace.x / cameraSpace.y;
-    double projectedY = cameraSpace.z / cameraSpace.y;
-    
+
+    // Perspective projection to tan space
+    glm::dvec2 projected{ cameraSpace.x / cameraSpace.y, cameraSpace.z / cameraSpace.y };
+
+    // Apply the forward Panini distortion and undo the renderer's fit zoom so
+    // anchors land where the post pass displays the same world position.
+    projected = PaniniProjection::distort(projected, paniniHorizontal, paniniVertical);
+    projected /= paniniFitScale;
+
     // Convert to normalized screen coordinates using FOV
     double tanHalfFov = std::tan(fov * 0.5);
-    projectedX /= tanHalfFov;
-    projectedY /= tanHalfFov;  // Don't adjust for aspect ratio
-    
-    return glm::dvec2(projectedX, projectedY);
+    return projected / tanHalfFov;  // Don't adjust y for aspect ratio
 }
 
 glm::dvec3 CameraProjection::worldToCamera(const glm::dvec3& worldPos,

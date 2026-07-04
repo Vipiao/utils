@@ -23,17 +23,23 @@ public:
      * @param aspectRatio Screen width/height ratio
      * @param cursorPosition 2D cursor position in normalized coordinates (-1 to 1)
      * @param separationIterations Number of iterations for point separation (default 5)
+     * @param paniniHorizontal Horizontal Panini strength of the renderer (0 = off, 1 = max)
+     * @param paniniVertical Vertical Panini strength of the renderer (0 = off, 1 = max)
+     * @param paniniFitScale The renderer's Panini fit zoom (1 = none)
      * @return SelectorResult with projected positions and closest selection
      */
     static SelectorResult selectFromPositions(
         const std::vector<glm::dvec3>& worldPositions,
         double projectedRadius,
         const glm::dvec3& cameraPosition,
-        const glm::dquat& cameraOrientation, 
+        const glm::dquat& cameraOrientation,
         double fieldOfView,
         double aspectRatio,
         const glm::dvec2& cursorPosition,
-        int separationIterations = 5);
+        int separationIterations = 5,
+        double paniniHorizontal = 0.0,
+        double paniniVertical = 0.0,
+        double paniniFitScale = 1.0);
 
 private:
     static void separateOverlappingPoints(std::vector<glm::dvec2>& positions, 

@@ -17,15 +17,23 @@ public:
      * @param worldPos World position to project
      * @param cameraPos Camera world position
      * @param cameraOri Camera world orientation
-     * @param fov Vertical field of view in radians
+     * @param fov Horizontal field of view in radians
      * @param aspectRatio Screen width/height ratio
+     * @param paniniHorizontal Horizontal Panini strength (0 = rectilinear, 1 = max).
+     *        Must match the renderer's setting for screen anchors to line up.
+     * @param paniniVertical Vertical Panini strength (0 = rectilinear, 1 = max)
+     * @param paniniFitScale The renderer's Panini fit zoom (1 = none). Pass the
+     *        renderer's value; do not derive it here.
      * @return 2D screen coordinates in range [-1, 1]. Returns (-2, -2) if point is behind camera
      */
-    static glm::dvec2 worldToScreen(const glm::dvec3& worldPos, 
+    static glm::dvec2 worldToScreen(const glm::dvec3& worldPos,
                                     const glm::dvec3& cameraPos,
-                                    const glm::dquat& cameraOri, 
-                                    double fov, 
-                                    double aspectRatio);
+                                    const glm::dquat& cameraOri,
+                                    double fov,
+                                    double aspectRatio,
+                                    double paniniHorizontal = 0.0,
+                                    double paniniVertical = 0.0,
+                                    double paniniFitScale = 1.0);
     
     /**
      * @brief Transform world position to camera space

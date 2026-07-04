@@ -13,21 +13,26 @@ SelectorResult PositionSelector::selectFromPositions(
     double fieldOfView,
     double aspectRatio,
     const glm::dvec2& cursorPosition,
-    int separationIterations) {
-    
+    int separationIterations,
+    double paniniHorizontal,
+    double paniniVertical,
+    double paniniFitScale) {
+
     SelectorResult result;
-    
+
     if (worldPositions.empty()) {
         result.closestIndex = -1;
         result.distanceToClosest = std::numeric_limits<double>::infinity();
         return result;
     }
-    
-    // Project all 3D positions to screen space
+
+    // Project all 3D positions to screen space (matching the renderer's Panini distortion)
     result.projectedPositions.reserve(worldPositions.size());
     for (const glm::dvec3& worldPos : worldPositions) {
-        glm::dvec2 screenPos = CameraProjection::worldToScreen(worldPos, cameraPosition, cameraOrientation, 
-                                                              fieldOfView, aspectRatio);
+        glm::dvec2 screenPos = CameraProjection::worldToScreen(worldPos, cameraPosition, cameraOrientation,
+                                                              fieldOfView, aspectRatio,
+                                                              paniniHorizontal, paniniVertical,
+                                                              paniniFitScale);
         result.projectedPositions.push_back(screenPos);
     }
     
