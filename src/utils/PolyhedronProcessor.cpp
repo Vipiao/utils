@@ -445,7 +445,8 @@ PolyhedronProcessor::MeshData PolyhedronProcessor::generateMeshData(const std::v
     // First pass: Generate positions, normals, and determine projection for each triangle
     struct TriangleInfo {
         glm::dvec3 normal;
-        int projectionAxis; // 0=YZ, 1=XZ, 2=XY
+        int axisU; // world axis mapped to u
+        int axisV; // world axis mapped to v
         std::array<glm::dvec2, 3> projectedCoords;
     };
     
@@ -464,30 +465,29 @@ PolyhedronProcessor::MeshData PolyhedronProcessor::generateMeshData(const std::v
         glm::dvec3 edge2 = triangle[2] - triangle[0];
         info.normal = glm::normalize(glm::cross(edge1, edge2));
         
-        // Determine best projection axis based on normal
+        // Project onto the dominant-axis plane, ordering the 2D basis so that
+        // u cross v points along the normal (right-handed UV mapping). Shaders
+        // reconstruct the bitangent as cross(N, T), which requires this
+        // handedness; a fixed axis order would mirror the normal map on faces
+        // pointing in the negative dominant direction.
         glm::dvec3 absNormal = glm::abs(info.normal);
         if (absNormal.x >= absNormal.y && absNormal.x >= absNormal.z) {
-            info.projectionAxis = 0; // Project to YZ plane
+            // X dominant: (y, z) for +x, (z, y) for -x
+            info.axisU = info.normal.x >= 0.0 ? 1 : 2;
+            info.axisV = info.normal.x >= 0.0 ? 2 : 1;
         } else if (absNormal.y >= absNormal.z) {
-            info.projectionAxis = 1; // Project to XZ plane
+            // Y dominant: (z, x) for +y, (x, z) for -y
+            info.axisU = info.normal.y >= 0.0 ? 2 : 0;
+            info.axisV = info.normal.y >= 0.0 ? 0 : 2;
         } else {
-            info.projectionAxis = 2; // Project to XY plane
+            // Z dominant: (x, y) for +z, (y, x) for -z
+            info.axisU = info.normal.z >= 0.0 ? 0 : 1;
+            info.axisV = info.normal.z >= 0.0 ? 1 : 0;
         }
-        
+
         // Project triangle vertices to 2D
         for (int i = 0; i < 3; ++i) {
-            glm::dvec2 projected;
-            switch (info.projectionAxis) {
-                case 0: // YZ plane
-                    projected = glm::dvec2(triangle[i].y, triangle[i].z);
-                    break;
-                case 1: // XZ plane
-                    projected = glm::dvec2(triangle[i].x, triangle[i].z);
-                    break;
-                case 2: // XY plane
-                    projected = glm::dvec2(triangle[i].x, triangle[i].y);
-                    break;
-            }
+            glm::dvec2 projected{triangle[i][info.axisU], triangle[i][info.axisV]};
             info.projectedCoords[i] = projected;
             allProjectedCoords.push_back(projected);
         }
