@@ -1,10 +1,11 @@
 #pragma once
+#include <cassert>
 #include <iostream>
 #include <memory>
 #include <vector>
 #include <coroutine>
 #include <glm/glm.hpp>
-#include <exception> 
+#include <exception>
 
 /*
 Example 1:
@@ -91,6 +92,8 @@ public:
          return this->promise().value;
       }
       void operator++() {
+         // Resuming a finished coroutine is undefined behavior
+         assert(!this->done());
          this->resume();
          if (this->promise().exception) {
             std::rethrow_exception(this->promise().exception);

@@ -113,8 +113,11 @@ PartitionCalculator<CellType, CellHash>::analyzePartitions(
             }
         },
         [&](const glm::ivec3& node) {
-            // Heuristic function - Manhattan distance to current target
-            return manhattanDistance(node, currentTarget);
+            // Weighted A*: inflating the heuristic biases the search toward the
+            // target, expanding far fewer nodes. Path optimality suffers, but
+            // this search only tests reachability, so the result is unaffected.
+            constexpr double heuristicWeight = 1.5;
+            return heuristicWeight * manhattanDistance(node, currentTarget);
         }
     );
     

@@ -48,8 +48,8 @@ void JobManager::work(std::chrono::time_point<std::chrono::high_resolution_clock
         if (!hasMoreWork || job->cancelled) {
             m_jobQueue.pop();
         }
-        // If job has more work, it stays at the top and will be re-executed
-        // after other jobs of the same priority (due to time passing)
+        // If the job has more work it stays at the top and is re-executed
+        // immediately on the next loop iteration
     }
 }
 
