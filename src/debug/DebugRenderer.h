@@ -1,6 +1,7 @@
 // DebugRenderer.h
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -20,6 +21,10 @@ public:
     virtual void setPosition(const std::string& name, const glm::dvec3& position) = 0;
     virtual void setOrientation(const std::string& name, const glm::dquat& orientation) = 0;
     virtual void setScale(const std::string& name, const glm::dvec3& scale) = 0;
+    // Velocity (units per time step) and the time step the current position was
+    // captured at; the renderer extrapolates the shape per frame from these.
+    virtual void setVelocity(const std::string& name, const glm::dvec3& velocity,
+                             std::uint64_t timeStep) = 0;
     
     // Property setters by ID
     virtual void setPosition(int id, const glm::dvec3& position) = 0;

@@ -10,7 +10,7 @@
 class Hash {
 public:
     // Compile-time string hash using FNV-1a algorithm
-    static constexpr int hashColliderName(const char* name) {
+    static constexpr int hashName(const char* name) {
         unsigned int hash = 2166136261u;
         while (*name) {
             hash ^= *name++;
