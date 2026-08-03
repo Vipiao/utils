@@ -23,7 +23,7 @@ public:
         const glm::dvec3& worldPos,
         const glm::dvec3& gridPosition,
         const glm::dquat& gridOrientation,
-        const glm::dvec3& gridCenter);
+        const glm::dvec3& gridCenter = glm::dvec3{0.0});
     
     /**
      * @brief Convert grid-local coordinates to world coordinates
@@ -37,7 +37,7 @@ public:
         const glm::dvec3& gridPos,
         const glm::dvec3& gridPosition,
         const glm::dquat& gridOrientation,
-        const glm::dvec3& gridCenter);
+        const glm::dvec3& gridCenter = glm::dvec3{0.0});
     
     /**
      * @brief Perform grid traversal algorithm between two points
