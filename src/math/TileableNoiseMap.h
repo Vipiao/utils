@@ -63,23 +63,24 @@ public:
     std::vector<uint16_t> bake() const;
 
     /**
-     * @brief The gradient quantized to a 16-bit unorm pair per texel, row major.
+     * @brief The gradient as a float pair per texel, row major.
      *
-     * Encoded as e = g / (1 + |g|) mapped from (-1, 1) onto the unorm range,
-     * and decoded as g = e / (1 - |e|). The squash earns its place twice. It
-     * bounds an unbounded quantity, which fixed point cannot hold otherwise;
-     * and it spends resolution where it changes a surface normal, since that
-     * normal's angle is atan(g) and so turns fastest per unit of gradient near
-     * flat. A uniform quantization of g would put its coarsest angular steps on
-     * exactly the gentle terrain where they are most visible.
+     * Unnormalized, and float rather than fixed point because a gradient has no
+     * bound the field itself implies: fixed point could only hold it by being
+     * given a range to map onto, which the map would then have to carry around
+     * to be read back. A float spends its precision proportionally instead,
+     * which is where a gradient wants it -- the normal it feeds turns fastest
+     * per unit of gradient near flat.
      *
-     * Values are held one step clear of both endpoints, which the decode needs:
-     * |e| = 1 is the gradient at infinity and divides by zero.
+     * Linear in the quantity it stores, so an average of the values is the
+     * average of the gradients. A mip chain built over this holds the mean
+     * gradient across each footprint rather than something an encoding curve
+     * has bent.
      *
      * Baked rather than left to be differenced from the map later because the
      * central difference taken here can use the unquantized field.
      */
-    std::vector<uint16_t> bakeGradient() const;
+    std::vector<float> bakeGradient() const;
 
 private:
     // Texels per lattice cell the finest octave must have. A sampler that

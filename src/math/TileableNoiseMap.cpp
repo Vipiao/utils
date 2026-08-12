@@ -6,11 +6,6 @@
 #include <cmath>
 #include <algorithm>
 
-// Largest and smallest unorm a baked gradient may take. The decode divides by
-// 1 - |e|, so the endpoints themselves are the gradient at infinity.
-static constexpr uint16_t s_gradientUnormMin{1};
-static constexpr uint16_t s_gradientUnormMax{65534};
-
 // Rounds a value in [0, 1] onto the 16-bit unorm range.
 static uint16_t toUnorm16(double unitValue) {
     const double scaled{std::round(std::clamp(unitValue, 0.0, 1.0) * 65535.0)};
@@ -118,16 +113,12 @@ std::vector<uint16_t> TileableNoiseMap::bake() const {
     return texels;
 }
 
-std::vector<uint16_t> TileableNoiseMap::bakeGradient() const {
-    std::vector<uint16_t> texels(m_gradient.size() * 2);
+std::vector<float> TileableNoiseMap::bakeGradient() const {
+    std::vector<float> texels(m_gradient.size() * 2);
 
     for (size_t texel{0}; texel < m_gradient.size(); ++texel) {
         for (int axis{0}; axis < 2; ++axis) {
-            const double value{m_gradient[texel][axis]};
-            const double squashed{value / (1.0 + std::abs(value))};
-            texels[texel * 2 + axis] =
-                std::clamp(toUnorm16(squashed * 0.5 + 0.5), s_gradientUnormMin,
-                           s_gradientUnormMax);
+            texels[texel * 2 + axis] = static_cast<float>(m_gradient[texel][axis]);
         }
     }
     return texels;
