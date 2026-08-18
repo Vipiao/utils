@@ -66,6 +66,10 @@ public:
         return std::chrono::duration_cast<DurationType>(now() - since);
     }
 
+    // True once a PLAY session has read past the end of its recording: what
+    // follows is live time, so a caller replaying a session can stop.
+    bool isPlaybackExhausted() const { return m_playbackExhausted; }
+
 private:
     template <typename T>
     void record(const T& data) {
@@ -80,7 +84,8 @@ private:
         if (m_file.eof() || !m_file.good()) {
             m_file.close();
             m_mode = Mode::NONE;
-            // Fall back to real time if we run out of recorded data  
+            m_playbackExhausted = true;
+            // Fall back to real time if we run out of recorded data
             std::cout << "Warning: End of recorded time data reached, switching to real-time." << std::endl;
             return std::chrono::high_resolution_clock::now();
         }
@@ -89,6 +94,7 @@ private:
     }
 
     Mode m_mode;
+    bool m_playbackExhausted{false};
     std::fstream m_file;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_startTime;
 };
