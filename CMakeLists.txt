@@ -44,3 +44,21 @@ else()
     target_compile_options(utils PRIVATE
         -Wall -Wextra -Wno-unused-parameter -Wno-unknown-pragmas)
 endif()
+
+# Tests. Registered with CTest, which ships with CMake, so the suite pulls in no
+# third-party dependency. Only built when utils is the top-level project: a
+# consumer that adds this directory gets the library and nothing else.
+option(UTILS_BUILD_TESTS "Build the utils test suite" ${UTILS_STANDALONE})
+if(UTILS_BUILD_TESTS)
+    enable_testing()
+
+    add_executable(dekker_arithmetic_test tests/dekker_arithmetic_test.cpp)
+    target_link_libraries(dekker_arithmetic_test PRIVATE utils)
+    if(MSVC)
+        target_compile_options(dekker_arithmetic_test PRIVATE /W4)
+    else()
+        target_compile_options(dekker_arithmetic_test PRIVATE -Wall -Wextra)
+    endif()
+
+    add_test(NAME dekker_arithmetic COMMAND dekker_arithmetic_test)
+endif()
