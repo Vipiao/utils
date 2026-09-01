@@ -1,0 +1,9 @@
+Copyright (c) 2026 Markus Fjellheim. All rights reserved.
+
+This source is published for review. No permission is granted to use,
+copy, modify or distribute it.
+
+Third-party components are covered by their own licences and are not
+affected by the above. GLM, under external/glm, is licensed by G-Truc
+Creation under the MIT License; see external/glm/copying.txt.
+Dependencies fetched at build time keep their own licences.
