@@ -22,7 +22,7 @@ ctest --test-dir build/tests --output-on-failure
 
 Tests are registered with CTest, which ships with CMake, so the suite pulls in
 no third-party dependency. Each test decides its own verdict and reports it
-through the exit code — nothing needs a human to read the output. The printed
+through the exit code. Nothing needs a human to read the output. The printed
 statistics are context for a failure, not the verdict.
 
 Tests are built only when utils is the top-level project, so a consumer that
@@ -31,8 +31,13 @@ to override.
 
 ### dekker_arithmetic
 
-`DekkerArithmetic<float>` represents a value as two floats — a main part and a
-correction — to carry roughly twice a float's mantissa. The test measures it
+Some libraries have unit tests. For example my Dekker arithmetic library.
+Changes to the Dekker arithmetic library can cause errors occurring rarely.
+Building extensive tests of previously found and fixed errors makes it much
+easier to fix the code.
+
+`DekkerArithmetic<float>` represents a value as two floats, a main part and a
+correction, to carry roughly twice a float's mantissa. The test measures it
 against double precision over 30736 sample pairs, drawn from a seeded uniform
 spread plus the full cross product of the awkward values (zero, denormals,
 extremes, infinities, NaN), and asserts:
@@ -48,8 +53,3 @@ extremes, infinities, NaN), and asserts:
 - **Domain.** NaN propagates rather than resolving to a number, and an operand
   outside float's finite range stays visibly outside instead of collapsing into
   a plausible finite result.
-
-That last one is the boundary of what the type supports: an infinity has no
-meaningful correction term, and the compensation reduces to `inf - inf`, so
-non-finite operands are excluded from the accuracy comparison and checked
-separately for staying loud.
