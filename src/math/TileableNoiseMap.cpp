@@ -6,6 +6,11 @@
 #include <cmath>
 #include <algorithm>
 
+// What one octave is worth before it joins the sum.
+static double shapeOctave(double value, TileableNoiseMapConfig::OctaveShape shape) {
+    return shape == TileableNoiseMapConfig::OctaveShape::FOLDED ? std::abs(value) : value;
+}
+
 // Rounds a value in [0, 1] onto the 16-bit unorm range.
 static uint16_t toUnorm16(double unitValue) {
     const double scaled{std::round(std::clamp(unitValue, 0.0, 1.0) * 65535.0)};
@@ -67,7 +72,8 @@ void TileableNoiseMap::generateField() {
             for (int x{0}; x < resolution; ++x) {
                 const glm::dvec2 point{x * cellsPerTexel, y * cellsPerTexel};
                 m_field[static_cast<size_t>(y) * resolution + x] +=
-                    weight * PerlinNoise::sample(point, frequency, octaveSeed);
+                    weight * shapeOctave(PerlinNoise::sample(point, frequency, octaveSeed),
+                                         m_config.m_octaveShape);
             }
         }
     }

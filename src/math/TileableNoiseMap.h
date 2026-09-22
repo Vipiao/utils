@@ -9,6 +9,19 @@
  * @brief What shape of noise to generate. See TileableNoiseMap.
  */
 struct TileableNoiseMapConfig {
+    // What an octave is worth before it joins the sum.
+    enum class OctaveShape {
+        // Perlin's own signed value. The octaves average each other out and the
+        // sum is smooth wherever they happen to cancel.
+        SIGNED,
+        // Its magnitude, so the octave creases along its own zero contour and
+        // stands at nothing there. Every octave lays a crease of its own, at its
+        // own scale, and the sum wrinkles at all of them at once. A reader after
+        // ridges takes the same field the other way up, the creases being where
+        // it reaches furthest.
+        FOLDED,
+    };
+
     // Texels per side. The map is always square.
     int m_resolution{1024};
     // How many octaves are summed. Each is twice the frequency of the last.
@@ -23,6 +36,10 @@ struct TileableNoiseMapConfig {
     // and frequency doubling cancel, and the surface reads as fuzz. Below that
     // the coarse octaves shape the field and the fine ones texture it.
     double m_gain{0.45};
+    // How each octave is shaped on its way into the sum. The shape is applied
+    // per octave rather than to the sum, which is what puts a crease at every
+    // scale instead of one crease across the finished field.
+    OctaveShape m_octaveShape{OctaveShape::SIGNED};
     uint64_t m_seed{0};
 };
 
