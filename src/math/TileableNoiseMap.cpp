@@ -68,9 +68,19 @@ void TileableNoiseMap::generateField() {
         // exactly `frequency` cells, so texel `resolution` lands back on 0.
         const double cellsPerTexel{static_cast<double>(frequency) / resolution};
 
+        // Where in its own period this octave is read from. Perlin stands at
+        // nothing on its lattice corners, and the frequencies double, so unslid
+        // every octave is cornered at once on the coarsest one's grid and the
+        // sum climbs out of a bowl there. The period is exactly this wide, so
+        // the slide moves what is read and leaves the wrap where it was.
+        const glm::dvec2 slide{
+            Hash::pcgUnit(octaveSeed, 0u) * static_cast<double>(frequency),
+            Hash::pcgUnit(octaveSeed, 1u) * static_cast<double>(frequency)};
+
         for (int y{0}; y < resolution; ++y) {
             for (int x{0}; x < resolution; ++x) {
-                const glm::dvec2 point{x * cellsPerTexel, y * cellsPerTexel};
+                const glm::dvec2 point{x * cellsPerTexel + slide.x,
+                                       y * cellsPerTexel + slide.y};
                 m_field[static_cast<size_t>(y) * resolution + x] +=
                     weight * shapeOctave(PerlinNoise::sample(point, frequency, octaveSeed),
                                          m_config.m_octaveShape);
