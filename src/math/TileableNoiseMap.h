@@ -64,7 +64,7 @@ class TileableNoiseMap {
 public:
     explicit TileableNoiseMap(const TileableNoiseMapConfig& config);
 
-    const TileableNoiseMapConfig& config() const { return m_config; }
+    const TileableNoiseMapConfig& getConfig() const { return m_config; }
 
     // Field value at a texel, in [0, 1]. Indices wrap.
     double sample(int x, int y) const;
