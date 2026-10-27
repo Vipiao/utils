@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <limits>
 #include <type_traits>
+#include <utility>
+#include <glm/glm.hpp>
 
 template<typename T>
 class DekkerArithmetic {
@@ -165,3 +167,14 @@ private:
    }
 
 };
+
+// A double vector as two float vectors: the float nearest each component, and
+// what that float misses. A shader adds the two back together in double-float
+// arithmetic, keeping a planet-sized position exact to well under a millimetre.
+inline std::pair<glm::vec3, glm::vec3> splitDekker(const glm::dvec3& value) {
+   const DekkerArithmetic<float>::DekkerNumber x{value.x};
+   const DekkerArithmetic<float>::DekkerNumber y{value.y};
+   const DekkerArithmetic<float>::DekkerNumber z{value.z};
+
+   return {glm::vec3{x.main, y.main, z.main}, glm::vec3{x.error, y.error, z.error}};
+}
